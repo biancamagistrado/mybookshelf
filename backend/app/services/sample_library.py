@@ -140,16 +140,46 @@ def _to_book(row: dict, session_id: str) -> models.Book:
 
 
 def seed_library(db: Session, session_id: str) -> int:
-    """Give one library its own copy of the sample books."""
+    """Give one library its own copy of the sample books.
+
+    Written as two bulk inserts rather than one per book. Seeding crosses the
+    network to a managed database, where several hundred round trips take long
+    enough that the first visitor's request times out.
+    """
     rows = seed_books()
     if not rows:
         return 0
+
+    now = dt.datetime.now(dt.UTC)
+    values = []
     for row in rows:
-        book = _to_book(row, session_id)
-        db.add(book)
-        db.flush()
-        if row.get("genres"):
-            crud.merge_catalogue_genres(db, book, row["genres"])
+        book = {k: v for k, v in row.items() if k != "genres"}
+        for field in _DATE_FIELDS:
+            if book.get(field):
+                book[field] = dt.date.fromisoformat(book[field])
+        book.update(
+            session_id=session_id,
+            enrichment_status="enriched",
+            enrichment_source="seed",
+            enriched_at=now,
+        )
+        values.append(book)
+
+    book_ids = list(db.scalars(insert(models.Book).returning(models.Book.id), values))
+
+    names = [name for row in rows for name in row.get("genres") or []]
+    genre_id = {genre.slug: genre.id for genre in crud.get_or_create_genres(db, names)}
+    links = [
+        {"book_id": book_id, "genre_id": genre_id[slug], "source": "catalogue"}
+        for book_id, row in zip(book_ids, rows, strict=True)
+        for slug in dict.fromkeys(
+            crud.slugify_genre(name) for name in row.get("genres") or []
+        )
+        if slug in genre_id
+    ]
+    if links:
+        db.execute(insert(models.book_genres), links)
+
     _mark_seeded(db, session_id)
     db.commit()
     logger.info("Seeded %s books for library %s", len(rows), session_id[:8])
