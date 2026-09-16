@@ -1,0 +1,192 @@
+@import "tailwindcss";
+
+:root,
+:root[data-theme="yellow"] {
+  --page: #f4e9d0;
+  --surface-1: #fbf4e2;
+  --surface-2: #ecdcbb;
+  --ink: #382c18;
+  --ink-secondary: #63512f;
+  --ink-muted: #957f57;
+  --grid: #ddc9a0;
+  --axis: #c9b28a;
+  --border: rgba(56, 44, 24, 0.16);
+
+  --accent: #8a5a12;
+  --accent-strong: #6b450c;
+  --accent-soft: #eddcb4;
+  --accent-contrast: #fdf8ec;
+
+  --wood-lit: #7d5637;
+  --wood-mid: #634127;
+  --wood-face: #4c311c;
+  --wood-shade: #362213;
+  --wood-edge: #22150c;
+  --wood-grain-rgb: 24 8 3;
+  --wood-sheen: rgba(255, 196, 160, 0.34);
+}
+
+:root[data-theme="light"] {
+  --page: #f9f9f7;
+  --surface-1: #fcfcfb;
+  --surface-2: #f2f1ec;
+  --ink: #0b0b0b;
+  --ink-secondary: #52514e;
+  --ink-muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.1);
+
+  --accent: #2a78d6;
+  --accent-strong: #1c5cab;
+  --accent-soft: #cde2fb;
+  --accent-contrast: #ffffff;
+
+  --wood-lit: #7d5637;
+  --wood-mid: #634127;
+  --wood-face: #4c311c;
+  --wood-shade: #362213;
+  --wood-edge: #22150c;
+  --wood-grain-rgb: 24 8 3;
+  --wood-sheen: rgba(255, 196, 160, 0.34);
+
+  --good: #0ca30c;
+  --warning: #fab219;
+  --critical: #d03b3b;
+}
+
+:root[data-theme="dark"] {
+  --page: #0d0d0d;
+  --surface-1: #1a1a19;
+  --surface-2: #232322;
+  --ink: #ffffff;
+  --ink-secondary: #c3c2b7;
+  --ink-muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.1);
+
+  --accent: #3987e5;
+  --accent-strong: #86b6ef;
+  --accent-soft: #184f95;
+  --accent-contrast: #0d0d0d;
+
+  --wood-lit: #96693f;
+  --wood-mid: #7b5432;
+  --wood-face: #614126;
+  --wood-shade: #48301c;
+  --wood-edge: #2f1f12;
+  --wood-grain-rgb: 12 4 1;
+  --wood-sheen: rgba(255, 184, 148, 0.22);
+}
+
+@theme inline {
+  --color-page: var(--page);
+  --color-surface: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-secondary: var(--ink-secondary);
+  --color-ink-muted: var(--ink-muted);
+  --color-grid: var(--grid);
+  --color-axis: var(--axis);
+  --color-hairline: var(--border);
+
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-contrast: var(--accent-contrast);
+
+  --color-good: var(--good);
+  --color-warning: var(--warning);
+  --color-critical: var(--critical);
+
+  --font-sans:
+    "Inter", "Cantarell", "Ubuntu", "DejaVu Sans", system-ui, -apple-system,
+    "Segoe UI", sans-serif;
+}
+
+html {
+  background-color: var(--page);
+}
+
+body {
+  margin: 0;
+  background-color: var(--page);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 1.5px solid var(--ink-secondary);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+input[type="search"]:focus,
+input[type="search"]:focus-visible {
+  outline: none;
+  border-bottom-color: var(--ink);
+  box-shadow: 0 1px 0 0 var(--ink);
+}
+
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.shelf-plank {
+  position: relative;
+  isolation: isolate;
+  height: 22px;
+  border-radius: 0 0 3px 3px;
+  background-image: linear-gradient(
+    180deg,
+    var(--wood-lit) 0%,
+    var(--wood-mid) 22%,
+    var(--wood-face) 48%,
+    var(--wood-shade) 78%,
+    var(--wood-edge) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 var(--wood-sheen),
+    0 7px 12px -6px rgba(0, 0, 0, 0.45);
+}
+
+.shelf-plank::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='22'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.004 0.55' numOctaves='4' seed='12' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='600' height='22' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 600px 100%;
+  background-repeat: repeat-x;
+  mix-blend-mode: overlay;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.shelf-plank::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: 1;
+  height: 5px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.32), transparent);
+}
+
+.carousel {
+  scrollbar-width: none;
+}
+.carousel::-webkit-scrollbar {
+  display: none;
+}
