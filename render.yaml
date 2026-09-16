@@ -4,8 +4,8 @@ services:
     runtime: docker
     plan: free
     rootDir: backend
-    dockerfilePath: backend/Dockerfile
-    dockerContext: backend
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
     healthCheckPath: /api/health
     envVars:
       - key: DATABASE_URL
@@ -22,7 +22,7 @@ services:
     runtime: static
     rootDir: frontend
     buildCommand: npm ci && npm run build
-    staticPublishPath: frontend/dist
+    staticPublishPath: ./dist
     envVars:
       - key: VITE_API_BASE_URL
         sync: false
