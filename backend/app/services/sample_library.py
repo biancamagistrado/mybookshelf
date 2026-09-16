@@ -151,9 +151,13 @@ def seed_library(db: Session, session_id: str) -> int:
         return 0
 
     now = dt.datetime.now(dt.UTC)
+    # Every row must carry the same keys. Rows differ in the wild, since not
+    # every book has an ISBN or a rating, and SQLAlchemy can only batch rows of
+    # the same shape: 263 books were going out as 134 separate INSERTs.
+    columns = {key for row in rows for key in row if key != "genres"}
     values = []
     for row in rows:
-        book = {k: v for k, v in row.items() if k != "genres"}
+        book = {key: row.get(key) for key in columns}
         for field in _DATE_FIELDS:
             if book.get(field):
                 book[field] = dt.date.fromisoformat(book[field])
@@ -165,7 +169,18 @@ def seed_library(db: Session, session_id: str) -> int:
         )
         values.append(book)
 
-    book_ids = list(db.scalars(insert(models.Book).returning(models.Book.id), values))
+    # .values(...) compiles every row into one statement. Passing the rows as a
+    # list to execute() instead makes SQLAlchemy send them two at a time, which
+    # was 136 round trips to a database on the other side of the internet.
+    # The library is empty here, so reading the ids back in order matches.
+    db.execute(insert(models.Book).values(values))
+    book_ids = list(
+        db.scalars(
+            select(models.Book.id)
+            .where(models.Book.session_id == session_id)
+            .order_by(models.Book.id)
+        )
+    )
 
     names = [name for row in rows for name in row.get("genres") or []]
     genre_id = {genre.slug: genre.id for genre in crud.get_or_create_genres(db, names)}
