@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: bookshelf-api
+    name: mybookshelf-api
     runtime: docker
     plan: free
     rootDir: backend
@@ -18,7 +18,7 @@ services:
         sync: false
 
   - type: web
-    name: bookshelf-web
+    name: mybookshelf
     runtime: static
     rootDir: frontend
     buildCommand: npm ci && npm run build
