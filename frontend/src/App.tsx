@@ -50,6 +50,7 @@ export default function App() {
 
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
+  const [slowLoad, setSlowLoad] = useState(false);
 
   const [shelves, setShelves] = useState<ShelfCount[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
@@ -74,6 +75,15 @@ export default function App() {
     const timer = window.setTimeout(() => setDebouncedSearch(filters.search), 300);
     return () => window.clearTimeout(timer);
   }, [filters.search]);
+
+  useEffect(() => {
+    if (!loading) {
+      setSlowLoad(false);
+      return;
+    }
+    const timer = window.setTimeout(() => setSlowLoad(true), 5000);
+    return () => window.clearTimeout(timer);
+  }, [loading]);
 
   const loadFacets = useCallback(async () => {
     try {
@@ -307,7 +317,26 @@ export default function App() {
       </main>
 
       <div className="min-h-0 flex-1 pb-5">
-        {!loading && books.length === 0 ? (
+        {loading && books.length === 0 ? (
+          <div
+            role="status"
+            className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center"
+          >
+            <span
+              aria-hidden="true"
+              className="size-8 animate-spin rounded-full border-2 border-accent border-t-transparent"
+            />
+            <p className="text-sm font-light text-ink-secondary">
+              Loading your shelf…
+            </p>
+            {slowLoad && (
+              <p className="max-w-xs text-xs font-light text-ink-muted">
+                The server sleeps when nobody is using it. Waking it up takes up
+                to a minute.
+              </p>
+            )}
+          </div>
+        ) : !loading && books.length === 0 ? (
           <p className="flex h-full items-center justify-center px-6 text-center text-sm text-ink-secondary">
             {filters.search
               ? "Nothing here matches that search."
